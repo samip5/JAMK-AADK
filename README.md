@@ -68,7 +68,7 @@ commit and push it GitLab.
 
 Remember use Issues Board and drag/drop exercise issue to <b>In Review</b> section when you have completed one of your exercise project. 
 This way teacher knows what exercises you have completed and teacher can start evaluation of your exercise work. Remember do this every time when 
-you are finished one of the exercises! This way teacher can start evaluation process immediately when you are working with other exercises.
+you are finished one of the exercises! This way teacher can start evaluation process immediately meanwhile you are working with other exercises.
 
 All the evaluation criterias can be found in Android Application Development web site.
 
