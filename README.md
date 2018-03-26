@@ -10,6 +10,8 @@ inside this repository.
 Student needs to send his/her name, studentID and repository url to teacher via email immediately after student has imported Android-Exercises repository 
 back using his/her own account (repository name and path is then available).
 
+Student need to add teacher to repository member for an evaluation purposes. Teacher need at least Reporter role.
+
 Student need to use this repository Issues Boards and drag an exercise issue from 
 <b>Backlog</b> to <b>Doing</b> section when student start's working with an exercise. 
 Student need to remember move an issue to <b>In Review</b> section in Issues Boards when student has 
@@ -64,7 +66,7 @@ Import exercise repository to GitLab and clone it to your computer, create Andro
 When you are starting an another exercise, you only need to create a new project inside this repository in your computer, start coding, add files, 
 commit and push it GitLab.
 
-Remember use Issues Board and drag/drop exercise issue to <b>In Review</b> section when you have completed your exercise project. 
+Remember use Issues Board and drag/drop exercise issue to <b>In Review</b> section when you have completed one of your exercise project. 
 This way teacher knows what exercises you have completed and teacher can start evaluation of your project. Remember do this every time when 
 you are finished one of the exercises! This way teacher can start evaluation process immediately when you are working with other exercises.
 
