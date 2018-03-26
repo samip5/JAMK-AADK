@@ -15,8 +15,8 @@ Student need to add teacher to repository member for an evaluation purposes. Tea
 Student need to use this repository Issues Boards and drag an exercise issue from 
 <b>Backlog</b> to <b>Doing</b> section when student start's working with an exercise. 
 Student need to remember move an issue to <b>In Review</b> section in Issues Boards when student has 
-finished exercise and pushed an exercise work back into his/her exercise repository at JAMK GitLab. 
-This way teacher knows that student has finished an exercise/issue and teacher will start an exercise evaluation. 
+finished one of the exercise and pushed an exercise work back into his/her exercise repository at JAMK GitLab. 
+This way teacher knows that student has finished an exercise/issue and teacher can start an exercise evaluation. 
 Teacher will move an issue to the <b>Closed</b> section in a Issues Boards when exercise is approved. 
 Teacher is monitoring your learning process all the time!
 
