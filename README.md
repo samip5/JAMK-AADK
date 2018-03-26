@@ -20,8 +20,10 @@ This way teacher knows that student has finished an exercise/issue and teacher c
 Teacher will move an issue to the <b>Closed</b> section in a Issues Boards when exercise is approved. 
 Teacher is monitoring your learning process all the time!
 
+Student need first to clone this repository to his/her local machine to start working with this repository. 
 Use this repository and complete each exercise as an own project inside this repository.
-Each exercise is described as an individual issue. Read carefully all the information and rules below before you start coding.
+Each exercise is described as an individual issue. 
+Read carefully all the information and rules below before you start coding.
 
 ## Repository structure
 
