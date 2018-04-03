@@ -43,7 +43,7 @@ your project folder doesn't contain files with needed for an evaluation.
 
 ### Screenshots and/or Videos
 Each project should include Screenshots and/or Videos folder. These screenshots and videos demonstrates your application functionality. Video files can
-be in internet, for example YouTube. Remember then include links to your comments in issues boards.
+be in internet, for example YouTube. Remember then include links to your comments in issues.
 
 ### Repository structure example
 Below is an example repository structure. Example contains two projects: FirstApplication and BasicControls.
