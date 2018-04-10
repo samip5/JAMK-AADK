@@ -7,7 +7,8 @@ Development workspace at JAMK GitLab. After that, each student need to import th
 exercise repository back to JAMK GitLab with his/her own account and complete each exercise 
 inside this repository.
 
-Student needs to send his/her name, studentID and repository url to teacher via email immediately after student has imported Android-Exercises repository 
+Student needs to send his/her name, studentID and repository url to teacher via 
+email immediately after student has imported Android-Exercises repository 
 back using his/her own account (repository name and path is then available).
 
 Student need to add teacher to repository member for an evaluation purposes. Teacher need at least Reporter role.
@@ -24,6 +25,8 @@ Student need first to clone this repository to his/her local machine to start wo
 Use this repository and complete each exercise as an own project inside this repository.
 Each exercise is described as an individual issue. 
 Read carefully all the information and rules below before you start coding.
+
+Note! Don't delete or create a new issues to this repository!
 
 ## Repository structure
 
