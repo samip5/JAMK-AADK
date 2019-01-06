@@ -43,7 +43,7 @@ For video recording, you can use e.g. <a href="https://screencast-o-matic.com/" 
 Exercise will not accepted if there is not a comment in exercise/issues description board and/or
 your project folder doesn't contain files with needed for an evaluation.
 
-### Screenshots
+### Screenshots and videos
 Each project should include Screenshots folder or link to recorded video (for example to YouTube). 
 These screenshots and videos demonstrates your application functionality. Video files can
 be in internet, for example YouTube. Remember then include links to your comments in issues.
