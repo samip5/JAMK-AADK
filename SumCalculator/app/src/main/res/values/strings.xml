@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Calculator</string>
+    <string name="value1">Value 1: </string>
+    <string name="value2">Value 2: </string>
+    <string name="total">Result</string>
+    <string name="button_calculate">Calculate</string>
+</resources>
