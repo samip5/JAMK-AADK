@@ -5,12 +5,32 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/employeeAvatarView" app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="13dp" app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginStart="13dp"/>
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/nameTextView" app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginTop="5dp" app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginStart="5dp"/>
+        android:layout_marginTop="13dp" app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginStart="60dp"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/titleTextView" app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="26dp" app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginStart="60dp"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/departmentTextView" app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="40dp" app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginStart="60dp"/>
+
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
