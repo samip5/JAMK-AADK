@@ -2,6 +2,7 @@ package dev.samip.showplacesinmap
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -9,6 +10,12 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.gson.GsonBuilder
+import okhttp3.*
+import okhttp3.Response
+import org.json.JSONArray
+import org.json.JSONObject
+import java.io.IOException
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
@@ -21,6 +28,31 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val mapFragment = supportFragmentManager
                 .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
+
+        fetchDataFromJson()
+    }
+
+    fun fetchDataFromJson() {
+        val remoteEndpoint = "https://samip.dev/android/map_data.json"
+
+        val request = Request.Builder().url(remoteEndpoint).build()
+
+        val client = OkHttpClient()
+        client.newCall(request).enqueue(object: Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                Log.e("JSON", e.toString())
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val body = response.body()?.string()
+                Log.i("JSON", body.toString())
+
+                val gson = GsonBuilder().create()
+
+                val fromJson = gson.fromJson(body, ResponseModel::class.java)
+            }
+
+        })
     }
 
     /**
@@ -35,7 +67,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
-
+        //mMap.addMarker(MarkerOptions().position().title())
 
         // Add a marker in Sydney and move the camera
         val sydney = LatLng(-34.0, 151.0)
