@@ -7,6 +7,8 @@ import android.util.Log
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 import com.google.gson.GsonBuilder
 import okhttp3.*
 import okhttp3.Response
@@ -24,8 +26,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val mapFragment = supportFragmentManager
                 .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
-
-        fetchDataFromJson()
     }
 
     fun fetchDataFromJson() {
@@ -49,6 +49,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 if(mfromJson.data != null) {
                     Log.d("onResponse_JSON", "There is data!")
                 }
+                for(item in mfromJson.data!!) {
+                    val city = item!!.marker_name
+                    val latutude_long = LatLng(item!!.lat!!, item.lo!!)
+                    mMap.addMarker(MarkerOptions().position(latutude_long).title(city))
+                }
             }
 
         })
@@ -65,13 +70,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
      */
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
-        mfromJson = ResponseModel()
 
-        if(mfromJson.data == null) {
-            Log.d("onMapReady_JSON", "Value is null, cannot continue.")
-        }else if (mfromJson.data != null) {
-            Log.d("onMapReady_JSON", "There is data, we can use it!")
-            Log.i("onMapReady_JSON", mfromJson.data.toString())
-        }
+        fetchDataFromJson()
     }
 }
