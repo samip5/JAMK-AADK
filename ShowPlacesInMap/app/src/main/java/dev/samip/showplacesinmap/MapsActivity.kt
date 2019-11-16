@@ -4,24 +4,20 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 
-import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
 import com.google.gson.GsonBuilder
 import okhttp3.*
 import okhttp3.Response
-import org.json.JSONArray
-import org.json.JSONObject
 import java.io.IOException
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
+    private lateinit var mfromJson: ResponseModel
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
@@ -49,7 +45,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
                 val gson = GsonBuilder().create()
 
-                val fromJson = gson.fromJson(body, ResponseModel::class.java)
+                mfromJson = gson.fromJson(body, ResponseModel::class.java)
+                if(mfromJson.data != null) {
+                    Log.d("onResponse_JSON", "There is data!")
+                }
             }
 
         })
@@ -66,12 +65,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
      */
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
+        mfromJson = ResponseModel()
 
-        //mMap.addMarker(MarkerOptions().position().title())
-
-        // Add a marker in Sydney and move the camera
-        val sydney = LatLng(-34.0, 151.0)
-        mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+        if(mfromJson.data == null) {
+            Log.d("onMapReady_JSON", "Value is null, cannot continue.")
+        }else if (mfromJson.data != null) {
+            Log.d("onMapReady_JSON", "There is data, we can use it!")
+            Log.i("onMapReady_JSON", mfromJson.data.toString())
+        }
     }
 }
