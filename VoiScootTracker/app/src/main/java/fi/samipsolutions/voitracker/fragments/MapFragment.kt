@@ -1,30 +1,25 @@
-package fi.samipsolutions.voitracker.activities
+package fi.samipsolutions.voitracker.fragments
 
 import android.app.Activity
 import android.content.Intent
 import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
-import android.graphics.Color
-import android.graphics.Typeface
 import android.location.Location
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.view.Gravity
+import android.view.LayoutInflater
 import android.view.View
-import android.widget.LinearLayout
-import android.widget.TextView
+import android.view.ViewGroup
 import androidx.core.app.ActivityCompat
+import androidx.fragment.app.Fragment
 import com.android.volley.Request
 import com.android.volley.Response
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.Volley
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
-
 import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
@@ -33,11 +28,12 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import fi.samipsolutions.voitracker.R
+import fi.samipsolutions.voitracker.adapters.CustomInfoWindowAdapter
 import org.json.JSONObject
 
-class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnMarkerClickListener {
+class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
-    private val TAG = MapsActivity::class.java.name
+    private val TAG = MapFragment::class.java.name
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var mMap: GoogleMap
     private lateinit var lastLocation: Location
@@ -48,7 +44,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnMarkerClickListe
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_maps)
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         locationCallback = object : LocationCallback() {
@@ -59,16 +54,24 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnMarkerClickListe
                 placeMarkerOnMap(LatLng(lastLocation.latitude, lastLocation.longitude))
             }
         }
-
-        val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
-        mapFragment.getMapAsync(this)
-        createLocationRequest()
     }
 
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
+                              savedInstanceState: Bundle?): View? {
+        val rootView = inflater.inflate(R.layout.fragment_map, container, false)
+        val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
+        mapFragment.getMapAsync(this)
+        return rootView
 
-    override fun onMapReady(googleMap: GoogleMap) {
-        // return early if the map was not initialised properly
-        mMap = googleMap ?: return
+    }
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+
+    }
+
+    override fun onMapReady(googleMap: GoogleMap?) {
+        mMap = googleMap!!
 
         mMap.uiSettings.isZoomControlsEnabled = true
         mMap.uiSettings.isMyLocationButtonEnabled = true
@@ -132,7 +135,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnMarkerClickListe
                 try {
                     // Show the dialog by calling startResolutionForResult(),
                     // and check the result in onActivityResult().
-                    e.startResolutionForResult(this@MapsActivity,
+                    e.startResolutionForResult(this@MapFragment,
                         REQUEST_CHECK_SETTINGS)
                 } catch (sendEx: IntentSender.SendIntentException) {
                     // Ignore the error.
@@ -147,7 +150,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnMarkerClickListe
         val builder = StringBuilder()
         val url = builder
             .append("https://")
-            .append(R.string.voi_api_endpoint)
+            .append(R.string.api_endpoint)
             .append("vehicle/status/ready?")
             .append("lat=" + lastLocation.latitude + "&lng=" + lastLocation.longitude).toString()
         Log.d("JSON_URL", url)
@@ -170,27 +173,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnMarkerClickListe
                     )
                     mMap.moveCamera(CameraUpdateFactory.newLatLng(point))
 
-                    mMap.setInfoWindowAdapter(object: GoogleMap.InfoWindowAdapter {
-                        override fun getInfoWindow(arg0: Marker): View? {
-                            return null
-                        }
-                        override fun getInfoContents(marker: Marker): View {
-                            val context = applicationContext
-                            val info = LinearLayout(context)
-                            info.orientation = (LinearLayout.VERTICAL)
-                            val title = TextView(context)
-                            title.setTextColor(Color.BLACK)
-                            title.gravity = Gravity.CENTER
-                            title.setTypeface(null, Typeface.BOLD)
-                            title.text = marker.title
-                            val snippet = TextView(context)
-                            snippet.setTextColor(Color.GRAY)
-                            snippet.text = marker.snippet
-                            info.addView(title)
-                            info.addView(snippet)
-                            return info
-                        }
-                    })
+                    mMap.setInfoWindowAdapter(CustomInfoWindowAdapter)
                 }
             },
             Response.ErrorListener { error ->
@@ -248,4 +231,5 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnMarkerClickListe
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1
         private const val REQUEST_CHECK_SETTINGS = 2
     }
+
 }
