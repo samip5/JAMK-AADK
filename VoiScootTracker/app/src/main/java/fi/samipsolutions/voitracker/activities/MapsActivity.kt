@@ -5,21 +5,16 @@ import android.content.Intent
 import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
-import android.graphics.Color
-import android.graphics.Typeface
 import android.location.Location
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.view.Gravity
-import android.view.View
-import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.core.app.ActivityCompat
 import com.android.volley.Request
 import com.android.volley.Response
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.Volley
+import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
 
@@ -32,7 +27,10 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.maps.android.clustering.ClusterManager
 import fi.samipsolutions.voitracker.R
+import fi.samipsolutions.voitracker.adapters.CustomInfoWindowAdapter
+import fi.samipsolutions.voitracker.adapters.ScootMarker
 import org.json.JSONObject
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnMarkerClickListener {
@@ -45,10 +43,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnMarkerClickListe
     private lateinit var locationRequest: LocationRequest
     private var locationUpdateState = false
     private lateinit var currentLatLng: LatLng
+    private lateinit var current_location: Marker
+    private val markers = mutableMapOf<Int, Marker>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
+        MobileAds.initialize(this) {}
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         locationCallback = object : LocationCallback() {
@@ -69,24 +70,30 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnMarkerClickListe
     override fun onMapReady(googleMap: GoogleMap) {
         // return early if the map was not initialised properly
         mMap = googleMap ?: return
+        val clusterManager = ClusterManager<ScootMarker>(this, mMap)
 
-        mMap.uiSettings.isZoomControlsEnabled = true
-        mMap.uiSettings.isMyLocationButtonEnabled = true
-        mMap.setOnMarkerClickListener(this)
+        with(mMap.uiSettings) {
+            isZoomControlsEnabled = true
+            isMyLocationButtonEnabled = true
+            isCompassEnabled = true
+            isRotateGesturesEnabled = true
+            isZoomGesturesEnabled = true
+        }
 
-        setUpMap()
-        getData()
-    }
+        mMap.setOnCameraIdleListener(clusterManager)
+        mMap.setOnMarkerClickListener(clusterManager)
+        mMap.setOnInfoWindowClickListener(clusterManager)
+        mMap.setInfoWindowAdapter(CustomInfoWindowAdapter(this))
+        mMap.mapType = GoogleMap.MAP_TYPE_HYBRID
 
-    private fun setUpMap() {
         if (ActivityCompat.checkSelfPermission(this,
                 android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
                 arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION), LOCATION_PERMISSION_REQUEST_CODE)
             return
         }
+
         mMap.isMyLocationEnabled = true
-        mMap.mapType = GoogleMap.MAP_TYPE_HYBRID
         fusedLocationClient.lastLocation.addOnSuccessListener(this) { location ->
             if (location != null) {
                 lastLocation = location
@@ -95,6 +102,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnMarkerClickListe
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 12f))
             }
         }
+        getData()
     }
 
     private fun startLocationUpdates() {
@@ -147,9 +155,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnMarkerClickListe
         val builder = StringBuilder()
         val url = builder
             .append("https://")
-            .append(R.string.voi_api_endpoint)
+            .append("api.voiapp.io/v1/")
             .append("vehicle/status/ready?")
-            .append("lat=" + lastLocation.latitude + "&lng=" + lastLocation.longitude).toString()
+            .append("lat=60.22" + "&lng=22.22").toString()
         Log.d("JSON_URL", url)
         // Create request and listeners
         val jsonArrayRequest = JsonArrayRequest(
@@ -160,7 +168,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnMarkerClickListe
                     val item_location = item.getJSONArray("location")
                     val color = giveMarkerColor(item)
                     val point = LatLng(item_location.getDouble(0), item_location.getDouble(1))
-                    mMap.addMarker(
+                    markers[i] = mMap.addMarker(
                         MarkerOptions()
                             .position(point)
                             .icon(BitmapDescriptorFactory.defaultMarker(color))
@@ -169,28 +177,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnMarkerClickListe
                             .snippet(giveSnippet(item))
                     )
                     mMap.moveCamera(CameraUpdateFactory.newLatLng(point))
-
-                    mMap.setInfoWindowAdapter(object: GoogleMap.InfoWindowAdapter {
-                        override fun getInfoWindow(arg0: Marker): View? {
-                            return null
-                        }
-                        override fun getInfoContents(marker: Marker): View {
-                            val context = applicationContext
-                            val info = LinearLayout(context)
-                            info.orientation = (LinearLayout.VERTICAL)
-                            val title = TextView(context)
-                            title.setTextColor(Color.BLACK)
-                            title.gravity = Gravity.CENTER
-                            title.setTypeface(null, Typeface.BOLD)
-                            title.text = marker.title
-                            val snippet = TextView(context)
-                            snippet.setTextColor(Color.GRAY)
-                            snippet.text = marker.snippet
-                            info.addView(title)
-                            info.addView(snippet)
-                            return info
-                        }
-                    })
                 }
             },
             Response.ErrorListener { error ->
@@ -228,11 +214,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnMarkerClickListe
         val markerOptions = MarkerOptions()
             .icon(BitmapDescriptorFactory.fromBitmap(BitmapFactory.decodeResource(resources, R.mipmap.ic_user_location)))
             .position(location)
-        mMap.addMarker(markerOptions)
+        current_location = mMap.addMarker(markerOptions)
     }
 
     private fun giveSnippet(item: JSONObject): String? {
-        return ("Battery: " + item["battery"].toString())
+        return ("Battery: " + item["battery"].toString() + "\n" + "Scoot QR code: " + item.getString("short"))
     }
 
     private fun giveMarkerColor(item: JSONObject): Float {

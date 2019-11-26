@@ -1,12 +1,12 @@
 package fi.samipsolutions.voitracker.activities
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
+import com.google.android.gms.ads.MobileAds
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import fi.samipsolutions.voitracker.R
 import fi.samipsolutions.voitracker.fragments.AboutFragment
-import fi.samipsolutions.voitracker.fragments.MapFragment
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -34,9 +34,8 @@ class MainActivity : AppCompatActivity() {
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_map -> {
-                val fragment = MapFragment()
-                supportFragmentManager.beginTransaction().replace(R.id.container, fragment, fragment.javaClass.getSimpleName())
-                    .commit()
+                val intent1 = Intent(this, MapsActivity::class.java)
+                startActivity(intent1)
                 return@OnNavigationItemSelectedListener true
             }
         }

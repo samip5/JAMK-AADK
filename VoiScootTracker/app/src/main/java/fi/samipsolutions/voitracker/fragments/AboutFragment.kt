@@ -6,16 +6,15 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import fi.samipsolutions.voitracker.R
-import kotlinx.android.synthetic.main.fragment_common.*
+import kotlinx.android.synthetic.main.fragment_about.*
 
 class AboutFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
-        inflater.inflate(R.layout.fragment_common, container, false)
+        inflater.inflate(R.layout.fragment_about, container, false)
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        tvCommon.text ="About the app"
-        commonLayout.setBackgroundColor(resources.getColor(android.R.color.darker_gray))
+        aboutTextView1.text ="About the app"
     }
 }
