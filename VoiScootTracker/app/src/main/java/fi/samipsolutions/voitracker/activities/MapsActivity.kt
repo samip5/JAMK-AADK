@@ -31,6 +31,7 @@ import com.google.maps.android.clustering.ClusterManager
 import fi.samipsolutions.voitracker.R
 import fi.samipsolutions.voitracker.adapters.CustomInfoWindowAdapter
 import fi.samipsolutions.voitracker.adapters.ScootMarker
+import fi.samipsolutions.voitracker.adapters.TestItem
 import org.json.JSONObject
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnMarkerClickListener {
@@ -38,6 +39,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnMarkerClickListe
     private val TAG = MapsActivity::class.java.name
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var mMap: GoogleMap
+    private lateinit var mClusterManager: ClusterManager<TestItem>
     private lateinit var lastLocation: Location
     private lateinit var locationCallback: LocationCallback
     private lateinit var locationRequest: LocationRequest
@@ -49,7 +51,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnMarkerClickListe
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
-        MobileAds.initialize(this) {}
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         locationCallback = object : LocationCallback() {
@@ -70,7 +71,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnMarkerClickListe
     override fun onMapReady(googleMap: GoogleMap) {
         // return early if the map was not initialised properly
         mMap = googleMap ?: return
-        val clusterManager = ClusterManager<ScootMarker>(this, mMap)
 
         with(mMap.uiSettings) {
             isZoomControlsEnabled = true
@@ -80,11 +80,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnMarkerClickListe
             isZoomGesturesEnabled = true
         }
 
-        mMap.setOnCameraIdleListener(clusterManager)
-        mMap.setOnMarkerClickListener(clusterManager)
-        mMap.setOnInfoWindowClickListener(clusterManager)
         mMap.setInfoWindowAdapter(CustomInfoWindowAdapter(this))
         mMap.mapType = GoogleMap.MAP_TYPE_HYBRID
+        setupCluster()
 
         if (ActivityCompat.checkSelfPermission(this,
                 android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -102,8 +100,60 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnMarkerClickListe
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 12f))
             }
         }
-        getData()
     }
+
+
+    private fun setupCluster() {
+        mClusterManager = ClusterManager(this, mMap)
+        mMap.setOnCameraIdleListener(mClusterManager)
+        mMap.setOnMarkerClickListener(mClusterManager)
+        addScoots()
+    }
+
+    private fun addScoots() {
+        // Instantiate the RequestQueue
+        val queue = Volley.newRequestQueue(this)
+        val builder = StringBuilder()
+        val url = builder
+            .append("https://")
+            .append("api.voiapp.io/v1/")
+            .append("vehicle/status/ready?")
+            .append("lat=60.22" + "&lng=22.22").toString()
+        Log.d("JSON_URL", url)
+        // Create request and listeners
+        val jsonArrayRequest = JsonArrayRequest(
+            Request.Method.GET, url, null,
+            Response.Listener { response ->
+                for(i in 0 until response.length()) {
+                    val item: JSONObject = response.getJSONObject(i)
+                    val itemLocation = item.getJSONArray("location")
+                    val color = giveMarkerColor(item)
+                    val point = LatLng(itemLocation.getDouble(0), itemLocation.getDouble(1))
+                    //markers[i] = mMap.addMarker(
+                    //    MarkerOptions()
+                    //        .position(point)
+                    //        .icon(BitmapDescriptorFactory.defaultMarker(color))
+                    //        .title(item["short"]
+                    //            .toString())
+                    //        .snippet(giveSnippet(item))
+                    val actualItem = giveSnippet(item)?.let {
+                        TestItem(itemLocation.getDouble(0),
+                            itemLocation.getDouble(1), item.getString("short"), it
+                        )
+                    }
+                    mClusterManager.addItem(actualItem)
+                    mMap.moveCamera(CameraUpdateFactory.newLatLng(point))
+                }
+            },
+            Response.ErrorListener { error ->
+                Log.d("JSON_ERROR",error.toString())
+            }
+        )
+        // Add the request to the RequestQueue.
+        queue.add(jsonArrayRequest)
+    }
+
+
 
     private fun startLocationUpdates() {
         if (ActivityCompat.checkSelfPermission(this,

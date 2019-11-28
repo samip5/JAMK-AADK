@@ -8,7 +8,6 @@ class ScootMarker (lat: Double, lng: Double, title: String? = null, snippet: Str
     private val _title: String? = title
     private val _snippet: String? = snippet
 
-
     override fun getPosition(): LatLng {
         return _position
     }
